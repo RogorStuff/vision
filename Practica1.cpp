@@ -50,7 +50,7 @@ void contraste_brillo() {
 
 }
 
-void distort() {
+void distort(int type) {
     Mat cloned = image.clone();
     for (int i = 0; i < image.rows; i++)
     {
@@ -58,8 +58,15 @@ void distort() {
         {
 
             int r = pow(i - (image.rows/2), 2) + pow(j - (image.cols/2), 2);
-            int xClone = i + (i - (image.rows / 2)) * (float(barrel) / 10000000) * pow(r, 2);
-            int yClone = j + (j - (image.cols / 2)) * (float(barrel) / 10000000) * pow(r, 2);
+            int xClone, yClone;
+            if (type == 1) {    // Barrel
+                xClone = i + (i - (image.rows / 2)) * (float(barrel) / 100000000000) * pow(r, 2);
+                yClone = j + (j - (image.cols / 2)) * (float(barrel) / 100000000000) * pow(r, 2);
+            }
+            else if (type == 2) {   // Cushion
+                xClone = i - (i - (image.rows / 2)) * (float(cushion) / 100000000000) * pow(r, 2);
+                yClone = j - (j - (image.cols / 2)) * (float(cushion) / 100000000000) * pow(r, 2);
+            }
             if (xClone<0 || xClone>=image.rows || yClone<0 || yClone>=image.cols) {
                 image.at<Vec3b>(i, j) = { 0, 0, 0 };
             }
@@ -80,7 +87,8 @@ void representar(VideoCapture cap) {
         alfa = getTrackbarPos("alfa", "trackbar panel");
         beta = getTrackbarPos("beta", "trackbar panel");
         ecualize = getTrackbarPos("ecualize", "trackbar panel");
-        posterMod = getTrackbarPos("poster", "trackbar panel");
+        barrel = getTrackbarPos("barrel", "trackbar panel");
+        cushion = getTrackbarPos("cushion", "trackbar panel");
         cap >> image;
         resize(image, image, Size(360, 360));
 
@@ -105,7 +113,8 @@ void representar(VideoCapture cap) {
             equalizeHist(image, image);
         }
 
-        distort();
+        distort(1);
+        distort(2);
 
         imshow("Display window", image); // Show our image inside it
         waitKey(25); // Wait for a keystroke i
