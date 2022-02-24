@@ -15,9 +15,9 @@ int alfa = 100;
 int beta = 0;
 int ecualize = 0;
 // Valores para RGB
-int r_slider = 255;
-int g_slider = 255;
-int b_slider = 255;
+int r_slider = 256;
+int g_slider = 256;
+int b_slider = 256;
 // Valores para poster
 int posterMod = 0;
 // Valores para distorsión
@@ -100,21 +100,20 @@ void representar(VideoCapture cap) {
 
                 alien(i, j);
                 poster(i, j);
-                /*image.at<Vec3b>(i, j)[2] = image.at<Vec3b>(i, j)[2] + r_slider;
-                image.at<Vec3b>(i, j)[1] = image.at<Vec3b>(i, j)[1] + g_slider;
-                image.at<Vec3b>(i, j)[0] = image.at<Vec3b>(i, j)[0] + b_slider;*/
 
             }
         }
         contraste_brillo();
-
-        if (ecualize == 1) {
-            cvtColor(image, image, COLOR_BGR2GRAY);
-            equalizeHist(image, image);
-        }
-
+        
         distort(1);
         distort(2);
+
+        if (ecualize == 1) {
+            //Mat cloned = image.clone();
+            cvtColor(image, image, COLOR_BGR2GRAY);
+            equalizeHist(image, image);
+            //image = cloned;
+        }
 
         imshow("Display window", image); // Show our image inside it
         waitKey(25); // Wait for a keystroke i
@@ -135,9 +134,9 @@ int main()
     createTrackbar("alfa", "trackbar panel", &alfa, 300);
     createTrackbar("beta", "trackbar panel", &beta, 100);
     createTrackbar("ecualize", "trackbar panel", &ecualize, 1);
-    createTrackbar("r", "trackbar panel", &r_slider, 255);
-    createTrackbar("g", "trackbar panel", &g_slider, 255);
-    createTrackbar("b", "trackbar panel", &b_slider, 255);
+    createTrackbar("r", "trackbar panel", &r_slider, 256);
+    createTrackbar("g", "trackbar panel", &g_slider, 256);
+    createTrackbar("b", "trackbar panel", &b_slider, 256);
     createTrackbar("poster", "trackbar panel", &posterMod, 255);
     createTrackbar("barrel", "trackbar panel", &barrel, 100);
     createTrackbar("cushion", "trackbar panel", &cushion, 100);
