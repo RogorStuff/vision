@@ -14,12 +14,15 @@ Mat image;
 int alfa = 100;
 int beta = 0;
 int ecualize = 0;
+
 // Valores para RGB
 int r_slider = 256;
 int g_slider = 256;
 int b_slider = 256;
+
 // Valores para poster
 int posterMod = 0;
+
 // Valores para distorsión
 int barrel = 0;
 int cushion = 0;
@@ -32,7 +35,7 @@ void alien(int i, int j) {
     image.at<Vec3b>(i, j)[0] = image.at<Vec3b>(i, j)[0] + b_slider;
 }
 
-// APlica un módulo para reducir el número de colores
+// Aplica un módulo para reducir el número de colores
 void poster(int i, int j) {
     if (posterMod == 0) {
         posterMod = 1;
@@ -44,20 +47,18 @@ void poster(int i, int j) {
 
 void contraste_brillo() {
     Mat aux = Mat::zeros(image.size(), image.type());
+
     // Realiza a cada pixel la operación alfa*pixel+beta
     image.convertTo(aux, -1, float(alfa) / 100, beta);
     image = aux;
-
 }
 
 void distort(int type) {
     Mat cloned = image.clone();
-    for (int i = 0; i < image.rows; i++)
-    {
-        for (int j = 0; j < image.cols; j++)
-        {
+    for (int i = 0; i < image.rows; i++) {
+        for (int j = 0; j < image.cols; j++) {
 
-            int r = pow(i - (image.rows/2), 2) + pow(j - (image.cols/2), 2);
+            int r = pow(i - (image.rows / 2), 2) + pow(j - (image.cols / 2), 2);
             int xClone, yClone;
             if (type == 1) {    // Barrel
                 xClone = i + (i - (image.rows / 2)) * (float(barrel) / 100000000000) * pow(r, 2);
@@ -67,20 +68,18 @@ void distort(int type) {
                 xClone = i - (i - (image.rows / 2)) * (float(cushion) / 100000000000) * pow(r, 2);
                 yClone = j - (j - (image.cols / 2)) * (float(cushion) / 100000000000) * pow(r, 2);
             }
-            if (xClone<0 || xClone>=image.rows || yClone<0 || yClone>=image.cols) {
+            if (xClone < 0 || xClone >= image.rows || yClone < 0 || yClone >= image.cols) {
                 image.at<Vec3b>(i, j) = { 0, 0, 0 };
             }
             else {
                 image.at<Vec3b>(i, j) = cloned.at<Vec3b>(xClone, yClone);
             }
-
         }
     }
 }
 
 void representar(VideoCapture cap) {
-    while (true)
-    {
+    while (true) {
         r_slider = getTrackbarPos("r", "trackbar panel");
         g_slider = getTrackbarPos("g", "trackbar panel");
         b_slider = getTrackbarPos("b", "trackbar panel");
@@ -92,42 +91,31 @@ void representar(VideoCapture cap) {
         cap >> image;
         resize(image, image, Size(360, 360));
 
-
-        for (int i = 0; i < image.rows; i++)
-        {
-            for (int j = 0; j < image.cols; j++)
-            {
-
+        for (int i = 0; i < image.rows; i++) {
+            for (int j = 0; j < image.cols; j++) {
                 alien(i, j);
                 poster(i, j);
-
             }
         }
         contraste_brillo();
-        
+
         distort(1);
         distort(2);
 
         if (ecualize == 1) {
-            //Mat cloned = image.clone();
             cvtColor(image, image, COLOR_BGR2GRAY);
             equalizeHist(image, image);
-            //image = cloned;
         }
 
         imshow("Display window", image); // Show our image inside it
         waitKey(25); // Wait for a keystroke i
-
     }
 }
 
+int main() {
 
-int main()
-{
-
-    //Poster -> reducir categorías de valores (de 255 a 8, por ejemplo, modulo para cada cnal)
+    //Poster -> reducir categorías de valores (de 255 a 8, por ejemplo, modulo para cada canal)
     //Distorsion -> k1 debe ser baja, 
-
 
     namedWindow("trackbar panel", WINDOW_FREERATIO);
 
@@ -144,13 +132,12 @@ int main()
     namedWindow("Display window"); // Create a window for display
     VideoCapture cap(0);
 
-    if (!cap.isOpened())
-    { // check if video device has been initialised
+    if (!cap.isOpened()) { 
+        // check if video device has been initialised
         std::cout << "cannot open camera";
     }
 
     representar(cap);
 
     return 0;
-
 }
